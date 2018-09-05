@@ -9,7 +9,7 @@ namespace MtgCubeManagerServer.Migrations
     {
         public Configuration()
         {
-            AutomaticMigrationsEnabled = true;
+            AutomaticMigrationsEnabled = false;
         }
 
         protected override void Seed(MtgCubeManagerServer.Models.ApplicationDbContext context)

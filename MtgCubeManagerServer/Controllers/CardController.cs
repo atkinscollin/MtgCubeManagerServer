@@ -38,7 +38,7 @@ namespace MtgCubeManagerServer.Controllers
 
         // PUT: api/Card/5
         [ResponseType(typeof(void))]
-        public async Task<IHttpActionResult> PutCard(int id, Card card)
+        public async Task<IHttpActionResult> PutCard(string id, Card card)
         {
             if (!ModelState.IsValid)
             {
@@ -79,7 +79,7 @@ namespace MtgCubeManagerServer.Controllers
             {
                 return BadRequest(ModelState);
             }
-
+            
             db.Cards.Add(card);
 
             try
@@ -90,7 +90,7 @@ namespace MtgCubeManagerServer.Controllers
             {
                 if (CardExists(card.Id))
                 {
-                    return Conflict();
+                    return await PutCard(card.Id, card);
                 }
                 else
                 {
@@ -126,7 +126,7 @@ namespace MtgCubeManagerServer.Controllers
             base.Dispose(disposing);
         }
 
-        private bool CardExists(int id)
+        private bool CardExists(string id)
         {
             return db.Cards.Count(e => e.Id == id) > 0;
         }

@@ -13,7 +13,7 @@ namespace MtgCubeManagerServer.Migrations
         
         string IMigrationMetadata.Id
         {
-            get { return "201807170018531_Initial"; }
+            get { return "201809050319009_Initial"; }
         }
         
         string IMigrationMetadata.Source

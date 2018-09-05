@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
-using Microsoft.AspNet.Identity.Owin;
 
 namespace MtgCubeManagerServer.Models
 {
@@ -30,6 +29,6 @@ namespace MtgCubeManagerServer.Models
             return new ApplicationDbContext();
         }
 
-        public System.Data.Entity.DbSet<MtgCubeManagerServer.Models.Card> Cards { get; set; }
+        public System.Data.Entity.DbSet<Card> Cards { get; set; }
     }
 }

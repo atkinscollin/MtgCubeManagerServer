@@ -384,9 +384,13 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201807170018531_Initial.cs" />
-    <Compile Include="Migrations\201807170018531_Initial.Designer.cs">
-      <DependentUpon>201807170018531_Initial.cs</DependentUpon>
+    <Compile Include="Migrations\201809050319009_Initial.cs" />
+    <Compile Include="Migrations\201809050319009_Initial.Designer.cs">
+      <DependentUpon>201809050319009_Initial.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201809050346573_AddedImageUriAndRelatedUriColumnsToCard.cs" />
+    <Compile Include="Migrations\201809050346573_AddedImageUriAndRelatedUriColumnsToCard.Designer.cs">
+      <DependentUpon>201809050346573_AddedImageUriAndRelatedUriColumnsToCard.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountBindingModels.cs" />
@@ -480,8 +484,11 @@
     <Content Include="Scripts\jquery-3.2.1.min.map" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201807170018531_Initial.resx">
-      <DependentUpon>201807170018531_Initial.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201809050319009_Initial.resx">
+      <DependentUpon>201809050319009_Initial.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201809050346573_AddedImageUriAndRelatedUriColumnsToCard.resx">
+      <DependentUpon>201809050346573_AddedImageUriAndRelatedUriColumnsToCard.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
