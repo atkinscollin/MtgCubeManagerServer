@@ -13,44 +13,44 @@ using MtgCubeManagerServer.Models;
 
 namespace MtgCubeManagerServer.Controllers
 {
-    public class CardController : ApiController
+    public class CubeCardsController : ApiController
     {
         private ApplicationDbContext db = new ApplicationDbContext();
 
-        // GET: api/Card
-        public IQueryable<Card> GetCards()
+        // GET: api/CubeCards
+        public IQueryable<CubeCard> GetCubeCards()
         {
-            return db.Cards;
+            return db.CubeCards;
         }
 
-        // GET: api/Card/5
-        [ResponseType(typeof(Card))]
-        public async Task<IHttpActionResult> GetCard(Guid id)
+        // GET: api/CubeCards/5
+        [ResponseType(typeof(CubeCard))]
+        public async Task<IHttpActionResult> GetCubeCard(int id)
         {
-            Card card = await db.Cards.FindAsync(id);
-            if (card == null)
+            CubeCard cubeCard = await db.CubeCards.FindAsync(id);
+            if (cubeCard == null)
             {
                 return NotFound();
             }
 
-            return Ok(card);
+            return Ok(cubeCard);
         }
 
-        // PUT: api/Card/5
+        // PUT: api/CubeCards/5
         [ResponseType(typeof(void))]
-        public async Task<IHttpActionResult> PutCard(string id, Card card)
+        public async Task<IHttpActionResult> PutCubeCard(int id, CubeCard cubeCard)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            if (id != card.Id)
+            if (id != cubeCard.CubeCardId)
             {
                 return BadRequest();
             }
 
-            db.Entry(card).State = EntityState.Modified;
+            db.Entry(cubeCard).State = EntityState.Modified;
 
             try
             {
@@ -58,7 +58,7 @@ namespace MtgCubeManagerServer.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!CardExists(id))
+                if (!CubeCardExists(id))
                 {
                     return NotFound();
                 }
@@ -71,50 +71,43 @@ namespace MtgCubeManagerServer.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
-        // POST: api/Card
-        [ResponseType(typeof(Card))]
-        public async Task<IHttpActionResult> PostCard(Card card)
+        // POST: api/CubeCards
+        [Authorize]
+        [ResponseType(typeof(CubeCard))]
+        public async Task<IHttpActionResult> PostCubeCard(CubeCard cubeCard)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            db.Cards.Add(card);
-
             try
             {
+                db.CubeCards.Add(cubeCard);
                 await db.SaveChangesAsync();
             }
-            catch (DbUpdateException)
+            catch (Exception e)
             {
-                if (CardExists(card.Id))
-                {
-                    return await PutCard(card.Id, card);
-                }
-                else
-                {
-                    throw;
-                }
+                throw;
             }
 
-            return CreatedAtRoute("DefaultApi", new { id = card.Id }, card);
+            return CreatedAtRoute("DefaultApi", new { id = cubeCard.CubeCardId }, cubeCard);
         }
 
-        // DELETE: api/Card/5
-        [ResponseType(typeof(Card))]
-        public async Task<IHttpActionResult> DeleteCard(Guid id)
+        // DELETE: api/CubeCards/5
+        [ResponseType(typeof(CubeCard))]
+        public async Task<IHttpActionResult> DeleteCubeCard(int id)
         {
-            Card card = await db.Cards.FindAsync(id);
-            if (card == null)
+            CubeCard cubeCard = await db.CubeCards.FindAsync(id);
+            if (cubeCard == null)
             {
                 return NotFound();
             }
 
-            db.Cards.Remove(card);
+            db.CubeCards.Remove(cubeCard);
             await db.SaveChangesAsync();
 
-            return Ok(card);
+            return Ok(cubeCard);
         }
 
         protected override void Dispose(bool disposing)
@@ -126,10 +119,9 @@ namespace MtgCubeManagerServer.Controllers
             base.Dispose(disposing);
         }
 
-        private bool CardExists(string id)
+        private bool CubeCardExists(int id)
         {
-            return db.Cards.Count(e => e.Id == id) > 0;
+            return db.CubeCards.Count(e => e.CubeCardId == id) > 0;
         }
-
     }
 }
