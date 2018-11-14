@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -20,6 +21,8 @@ namespace MtgCubeManagerServer.Models
 
         public string CreatedById { get; set; }
 
-        public ApplicationUser CreatedBy { get; set; }
+        //public ApplicationUser CreatedBy { get; set; }
+
+        public virtual ICollection<CubeCard> CubeCards { get; set; }
     }
 }

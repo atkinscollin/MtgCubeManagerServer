@@ -9,16 +9,15 @@ namespace MtgCubeManagerServer.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int CubeCardId { get; set; }
 
-        [ForeignKey("Cube")]
-        public int CubeId { get; set; }
-
-        // TODO - Remove
         [ForeignKey("Card")]
         public string CardId { get; set; }
 
-        public Cube Cube { get; set; }
+        [ForeignKey("Cube")]
+        public int CubeId { get; set; }
 
-        public Card Card { get; set; }
+        //public Cube Cube { get; set; }
+
+        //public Card Card { get; set; }
 
         public string CustomColorIdentity { get; set; }
 
@@ -27,5 +26,9 @@ namespace MtgCubeManagerServer.Models
         public bool? IsFoil { get; set; }
 
         public bool? IsAltered { get; set; }
+
+        public virtual Card Card { get; private set; }
+
+        public virtual Cube Cube { get; private set; }
     }
 }

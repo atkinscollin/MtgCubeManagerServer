@@ -47,6 +47,7 @@ namespace MtgCubeManagerServer.Controllers
         {
             Cube[] cubes = await db.Cubes
                 .Where(x => x.CreatedById == userId)
+                //.Include(x => x.CubeCards)
                 .ToArrayAsync();
 
             if (cubes == null || cubes.Length == 0)
