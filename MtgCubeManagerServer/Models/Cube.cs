@@ -16,12 +16,12 @@ namespace MtgCubeManagerServer.Models
         public string CubeName { get; set; }
         
         public DateTime CreatedDate { get; set; }
+
+        public string CreatedById { get; set; }
         
         public DateTime UpdatedDate { get; set; }
 
-        public string CreatedById { get; set; }
-
-        //public ApplicationUser CreatedBy { get; set; }
+        public string UpdatedById { get; set; }
 
         public virtual ICollection<CubeCard> CubeCards { get; set; }
     }

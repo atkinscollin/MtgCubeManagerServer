@@ -1,38 +1,44 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Entity;
+﻿using System.Collections.Generic;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Security.Claims;
 using System.Threading.Tasks;
-using System.Web;
 using System.Web.Http;
 using System.Web.Http.Description;
 using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.EntityFramework;
-using Microsoft.AspNet.Identity.Owin;
 using MtgCubeManagerServer.Models;
+using MtgCubeManagerServer.Repositories;
+using static MtgCubeManagerServer.Dtos.CubeDtos;
 
 namespace MtgCubeManagerServer.Controllers
 {
+    [RoutePrefix("api/cubes")]
     public class CubesController : ApiController
     {
         private ApplicationDbContext db = new ApplicationDbContext();
 
-        // GET: api/Cubes
-        public IQueryable<Cube> GetCubeLists()
+        private CubesRepository cubesRepo;
+
+        public CubesController()
         {
-            return db.Cubes;
+            cubesRepo = new CubesRepository(db);
         }
 
-        // GET: api/Cubes/5
-        [ResponseType(typeof(Cube))]
-        public async Task<IHttpActionResult> GetCubeByCubeId(int cubeId)
+        // GET: api/cubes
+        [Route("")]
+        public async Task<List<Cube>> GetCubes()
         {
-            Cube cube = await db.Cubes.FindAsync(cubeId);
+            return await cubesRepo.GetCubes();
+        }
+
+        // GET api/cubes/5
+        [HttpGet]
+        [Route("{id:int}")]
+        [ResponseType(typeof(Cube))]
+        public async Task<IHttpActionResult> GetCubeById(int id)
+        {
+            Cube cube = await cubesRepo.GetCubeById(id);
+
             if (cube == null)
             {
                 return NotFound();
@@ -41,16 +47,31 @@ namespace MtgCubeManagerServer.Controllers
             return Ok(cube);
         }
 
-        // GET: api/Cubes/5
-        [ResponseType(typeof(Cube[]))]
+        // GET: api/cubes/5/info
+        [HttpGet]
+        [Route("{id:int}/info")]
+        [ResponseType(typeof(CubeInfoDto))]
+        public async Task<IHttpActionResult> GetCubeInfoById(int id)
+        {
+            CubeInfoDto cubeInfo = await cubesRepo.GetCubeInfoById(id);
+
+            if (cubeInfo == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(cubeInfo);
+        }
+
+        // GET: api/cubes/user/5
+        [HttpGet]
+        [Route("user/{userId}")]
+        [ResponseType(typeof(List<Cube>))]
         public async Task<IHttpActionResult> GetCubesByUserId(string userId)
         {
-            Cube[] cubes = await db.Cubes
-                .Where(x => x.CreatedById == userId)
-                //.Include(x => x.CubeCards)
-                .ToArrayAsync();
+            List<Cube> cubes = await cubesRepo.GetCubesByUserId(userId);
 
-            if (cubes == null || cubes.Length == 0)
+            if (cubes == null || cubes.Count == 0)
             {
                 return NotFound();
             }
@@ -58,9 +79,27 @@ namespace MtgCubeManagerServer.Controllers
             return Ok(cubes);
         }
 
-        // PUT: api/Cubes/5
+        // GET: api/cubes/user/5/info
+        [HttpGet]
+        [Route("user/{userId}/info")]
+        [ResponseType(typeof(List<CubeInfoDto>))]
+        public async Task<IHttpActionResult> GetCubeInfosByUserId(string userId)
+        {
+            List<CubeInfoDto> cubeInfos = await cubesRepo.GetCubeInfosByUserId(userId);
+
+            if (cubeInfos == null || cubeInfos.Count == 0)
+            {
+                return NotFound();
+            }
+
+            return Ok(cubeInfos);
+        }
+
+        // PUT: api/cubes/5
+        [Authorize]
+        [HttpPut]
         [ResponseType(typeof(void))]
-        public async Task<IHttpActionResult> PutCube(int cubeId, Cube cube)
+        public async Task<IHttpActionResult> PutCube(int cubeId, [FromBody]Cube cube)
         {
             if (!ModelState.IsValid)
             {
@@ -72,13 +111,9 @@ namespace MtgCubeManagerServer.Controllers
                 return BadRequest();
             }
 
-            cube.UpdatedDate = DateTime.Now;
-
-            db.Entry(cube).State = EntityState.Modified;
-
             try
             {
-                await db.SaveChangesAsync();
+                await cubesRepo.UpdateCube(cube, User.Identity.GetUserId());
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -95,36 +130,22 @@ namespace MtgCubeManagerServer.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
-        // POST: api/Cubes
+        // POST: api/cubes
         [Authorize]
+        [HttpPost]
         [ResponseType(typeof(Cube))]
-        public async Task<IHttpActionResult> PostCube(Cube cube)
+        public async Task<IHttpActionResult> PostCube([FromBody]Cube cube)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            
-            try
-            {
-                cube.CreatedById = db.Users.Find(User.Identity.GetUserId()).Id;
-                cube.CreatedDate = DateTime.Now;
-                cube.UpdatedDate = DateTime.Now;
-
-                db.Cubes.Add(cube);
-            }
-            catch (Exception e)
-            {
-                // TODO - Throw unique exception here
-                throw;
-            }
-            
 
             try
             {
-                await db.SaveChangesAsync();
+                await cubesRepo.AddCube(cube, User.Identity.GetUserId());
             }
-            catch (DbUpdateException ex)
+            catch (DbUpdateException)
             {
                 if (CubeExists(cube.CubeId))
                 {
@@ -136,21 +157,23 @@ namespace MtgCubeManagerServer.Controllers
                 }
             }
 
-            return CreatedAtRoute("DefaultApi", new { id = cube.CubeId }, cube);
+            return Ok(cube);
         }
 
-        // DELETE: api/Cubes/5
+        // DELETE: api/cubes/5
+        [Authorize]
+        [HttpDelete]
         [ResponseType(typeof(Cube))]
-        public async Task<IHttpActionResult> DeleteCube(Guid cubeId)
+        public async Task<IHttpActionResult> DeleteCube(int cubeId)
         {
             Cube cube = await db.Cubes.FindAsync(cubeId);
+
             if (cube == null)
             {
                 return NotFound();
             }
 
-            db.Cubes.Remove(cube);
-            await db.SaveChangesAsync();
+            await cubesRepo.DeleteCube(cube);
 
             return Ok(cube);
         }
@@ -165,9 +188,13 @@ namespace MtgCubeManagerServer.Controllers
             base.Dispose(disposing);
         }
 
+        #region Helpers
+
         private bool CubeExists(int id)
         {
             return db.Cubes.Count(e => e.CubeId == id) > 0;
         }
+
+        #endregion
     }
 }
