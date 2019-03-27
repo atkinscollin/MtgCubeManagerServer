@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNet.Identity.EntityFramework;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Owin;
-using MtgCubeManagerServer.Models;
 using Owin;
 
 [assembly: OwinStartup(typeof(MtgCubeManagerServer.Startup))]
