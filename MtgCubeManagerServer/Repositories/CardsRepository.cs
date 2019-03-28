@@ -45,6 +45,20 @@ namespace MtgCubeManagerServer.Repositories
             return await _db.SaveChangesAsync();
         }
 
+        public async Task<int> AddScryfallCards(List<ScryfallCard> scryfallCards)
+        {
+            List<Card> cardData = scryfallCards
+                .Select(sc => new Card(sc))
+                .ToList();
+
+            foreach (var card in cardData)
+            {
+                _db.Cards.Add(card);
+            }
+
+            return await _db.SaveChangesAsync();
+        }
+
         public async Task<int> AddScryfallCard(ScryfallCard scryfallCard)
         {
             var card = new Card(scryfallCard);

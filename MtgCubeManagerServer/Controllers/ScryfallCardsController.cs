@@ -21,8 +21,7 @@ namespace MtgCubeManagerServer.Controllers
         {
             client.BaseAddress = new Uri("https://api.scryfall.com/");
             client.DefaultRequestHeaders.Accept.Clear();
-            client.DefaultRequestHeaders.Accept.Add(
-                new MediaTypeWithQualityHeaderValue("application/json"));
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
         // POST: api/scryfallcards/updatedb
@@ -34,9 +33,13 @@ namespace MtgCubeManagerServer.Controllers
         {
             try
             {
-                var bulkDefaultCardDataUri = await GetBulkDefaultCardDataUri();
+                var bulkDefaultCardDataUri = await ConstructBulkDefaultCardDataUri();
                 List<ScryfallCard> scryfallCardData = await GetScryfallCardData(bulkDefaultCardDataUri);
                 // todo - convert scryfallCardData to Card and add to db
+                List<Card> cardData = scryfallCardData
+                    .Select(sc => new Card(sc))
+                    .ToList();
+
                 return Ok(scryfallCardData.Count);
             }
             catch (Exception)
@@ -68,7 +71,7 @@ namespace MtgCubeManagerServer.Controllers
             base.Dispose(disposing);
         }
 
-        private async Task<Uri> GetBulkDefaultCardDataUri()
+        private async Task<Uri> ConstructBulkDefaultCardDataUri()
         {
             Uri bulkDefaultCardDataUri = null;
             HttpResponseMessage bulkDataResponse = await client.GetAsync(BULK_DATA_URI);

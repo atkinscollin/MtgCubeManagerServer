@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
@@ -15,12 +18,16 @@ namespace MtgCubeManagerServer.Controllers
     public class CardsController : ApiController
     {
         private ApplicationDbContext db = new ApplicationDbContext();
-
+        private HttpClient client = new HttpClient();
         private CardsRepository cardsRepo;
 
         public CardsController()
         {
             cardsRepo = new CardsRepository(db);
+
+            client.BaseAddress = new Uri("https://api.scryfall.com/");
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
         // GET: api/cards
@@ -175,6 +182,30 @@ namespace MtgCubeManagerServer.Controllers
             return Ok(card);
         }
 
+        [HttpPost]
+        [Route("updatedb")]
+        [ResponseType(typeof(int))]
+        public async Task<IHttpActionResult> UpdateDb()
+        {
+            try
+            {
+                var bulkDefaultCardDataUri = await ConstructBulkDefaultCardDataUri();
+                List<ScryfallCard> scryfallCardData = await GetScryfallCardData(bulkDefaultCardDataUri);
+                // todo - convert scryfallCardData to Card and add to db
+                //List<Card> cardData = scryfallCardData
+                //    .Select(sc => new Card(sc))
+                //    .ToList();
+                await cardsRepo.AddScryfallCards(scryfallCardData);
+                return Ok(scryfallCardData.Count);
+            }
+            catch (Exception e)
+            {
+
+                //return ExceptionResult;
+                throw;
+            }
+        }
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -190,6 +221,31 @@ namespace MtgCubeManagerServer.Controllers
         private bool CardExists(int id)
         {
             return db.Cards.Count(e => e.CardId == id) > 0;
+        }
+
+        private async Task<Uri> ConstructBulkDefaultCardDataUri()
+        {
+            Uri bulkDefaultCardDataUri = null;
+            HttpResponseMessage bulkDataResponse = await client.GetAsync("bulk-data");
+            if (bulkDataResponse.IsSuccessStatusCode)
+            {
+                ScryfallBulkData scryfallBulkData = await bulkDataResponse.Content.ReadAsAsync<ScryfallBulkData>();
+                bulkDefaultCardDataUri = scryfallBulkData.Data.First(d => d.Type == "default_cards").PermalinkUri;
+            }
+
+            return bulkDefaultCardDataUri;
+        }
+
+        private async Task<List<ScryfallCard>> GetScryfallCardData(Uri uri)
+        {
+            List<ScryfallCard> scryfallCards = null;
+            HttpResponseMessage defaultCardsResponse = await client.GetAsync(uri);
+            if (defaultCardsResponse.IsSuccessStatusCode)
+            {
+                scryfallCards = await defaultCardsResponse.Content.ReadAsAsync<List<ScryfallCard>>();
+            }
+
+            return scryfallCards;
         }
 
         #endregion

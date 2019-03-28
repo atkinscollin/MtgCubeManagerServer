@@ -24,19 +24,22 @@ namespace MtgCubeManagerServer.Models
             ScryfallUri = scryfallCard.ScryfallUri.ToString();
             Layout = scryfallCard.Layout;
             HighresImage = scryfallCard.HighresImage;
-            ImageUriPng = scryfallCard.ImageUris.Png.ToString();
-            ImageUriBorderCrop = scryfallCard.ImageUris.BorderCrop.ToString();
-            ImageUriArtCrop = scryfallCard.ImageUris.ArtCrop.ToString();
-            ImageUriLarge = scryfallCard.ImageUris.Large.ToString();
-            ImageUriNormal = scryfallCard.ImageUris.Normal.ToString();
-            ImageUriSmall = scryfallCard.ImageUris.Small.ToString();
+            if (scryfallCard.ImageUris != null)
+            {
+                ImageUriPng = scryfallCard.ImageUris.Png.ToString();
+                ImageUriBorderCrop = scryfallCard.ImageUris.BorderCrop.ToString();
+                ImageUriArtCrop = scryfallCard.ImageUris.ArtCrop.ToString();
+                ImageUriLarge = scryfallCard.ImageUris.Large.ToString();
+                ImageUriNormal = scryfallCard.ImageUris.Normal.ToString();
+                ImageUriSmall = scryfallCard.ImageUris.Small.ToString();
+            }
             ManaCost = scryfallCard.ManaCost;
             Cmc = scryfallCard.Cmc;
             TypeLine = scryfallCard.TypeLine;
             OracleText = scryfallCard.OracleText;
-            Colors = string.Join(",", scryfallCard.Colors);
-            ColorIdentity = string.Join(",", scryfallCard.ColorIdentity);
-            ColorIndicator = string.Join(",", scryfallCard.ColorIndicator);
+            Colors = scryfallCard.Colors != null ? string.Join(",", scryfallCard.Colors) : string.Empty;
+            ColorIdentity = scryfallCard.ColorIdentity != null ? string.Join(",", scryfallCard.ColorIdentity) : string.Empty;
+            ColorIndicator = scryfallCard.ColorIndicator != null ? string.Join(",", scryfallCard.ColorIndicator) : string.Empty;
             LegalityStandard = scryfallCard.Legalities.Standard == "legal";
             LegalityFuture = scryfallCard.Legalities.Future == "legal";
             LegalityModern = scryfallCard.Legalities.Modern == "legal";

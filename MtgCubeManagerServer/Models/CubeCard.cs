@@ -10,7 +10,7 @@ namespace MtgCubeManagerServer.Models
         public int CubeCardId { get; set; }
 
         [ForeignKey("Card")]
-        public string CardId { get; set; }
+        public int CardId { get; set; }
 
         [ForeignKey("Cube")]
         public int CubeId { get; set; }
